@@ -18,9 +18,9 @@ class TextNode:
 
     def __eq__(self, other):
         return (
-                self.text_type == other.text_type
-                and self.text == other.text
-                and self.url == other.url
+            self.text_type == other.text_type
+            and self.text == other.text
+            and self.url == other.url
         )
 
     def __repr__(self):
