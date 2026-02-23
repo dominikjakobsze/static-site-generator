@@ -1,6 +1,3 @@
-from rich import print
-
-
 class HTMLNode:
     def __init__(self, tag=None, value=None, children=None, props=None):
         self.tag = tag
@@ -40,37 +37,17 @@ class LeafNode(HTMLNode):
 
 class ParentNode(HTMLNode):
     def __init__(self, tag, children, props=None):
-        super().__init__(tag=tag, children=children, props=props)
+        super().__init__(tag, None, children, props)
 
     def to_html(self):
-        if not self.tag:
-            raise ValueError("tag is missing")
-        if not self.children:
-            raise ValueError("children is missing")
-
-        # zaimplementowac rekurencyjnie
+        if self.tag is None:
+            raise ValueError("invalid HTML: no tag")
+        if self.children is None:
+            raise ValueError("invalid HTML: no children")
         children_html = ""
         for child in self.children:
-            if isinstance(child, HTMLNode):
-                children_html += child.to_html()
-        if not self.props:
-            return f"<{self.tag}>{children_html}</{self.tag}>"
-        return f"<{self.tag} {self.props_to_html()}></{self.tag}>"
+            children_html += child.to_html()
+        return f"<{self.tag}{self.props_to_html()}>{children_html}</{self.tag}>"
 
-
-node = ParentNode(
-    "div",
-    [
-        LeafNode("h1", "Heading!"),
-        LeafNode("h2", "New York Times"),
-        ParentNode(
-            "span",
-            [
-                LeafNode("b", "grandchild")
-            ]
-        ),
-        LeafNode("p", "Hello World")
-    ]
-)
-
-print(node.to_html())
+    def __repr__(self):
+        return f"ParentNode({self.tag}, children: {self.children}, {self.props})"
