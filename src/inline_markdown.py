@@ -118,3 +118,16 @@ def split_nodes_link(old_nodes):
 
     # Zwróć nową listę węzłów
     return result_list
+
+
+def text_to_textnodes(text):
+    # Tworzy początkową listę z jednym węzłem tekstowym
+    result = [TextNode(text, TextType.TEXT)]
+    # Wyodrębnia obrazki oraz linki (zaczynamy od tego na wypadek gdyby split_nodes_delimiter próbował rozbijać te bloki)
+    result = split_nodes_image(result)
+    result = split_nodes_link(result)
+    # Kolejno dzieli tekst na podstawie znaczników markdown
+    result = split_nodes_delimiter(result, "**", TextType.BOLD)
+    result = split_nodes_delimiter(result, "_", TextType.ITALIC)
+    result = split_nodes_delimiter(result, "`", TextType.CODE)
+    return result
