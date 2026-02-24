@@ -76,3 +76,45 @@ def split_nodes_image(old_nodes):
             result_list.append(TextNode(current_text, TextType.TEXT))
 
     return result_list
+
+
+def split_nodes_link(old_nodes):
+    # Lista na przetworzone węzły
+    result_list = []
+
+    for old_node in old_nodes:
+        # Jeśli węzeł nie jest tekstem, dodaj go bez zmian
+        if old_node.text_type != TextType.TEXT:
+            result_list.append(old_node)
+            continue
+
+        # Wyciągnij wszystkie linki z tekstu
+        extracted_markdown_links = extract_markdown_links(old_node.text)
+
+        # Jeśli nie ma linków, dodaj cały węzeł i idź dalej
+        if not extracted_markdown_links:
+            result_list.append(old_node)
+            continue
+
+        # Tekst, który pozostał do podzielenia
+        current_text = old_node.text
+
+        for link_details in extracted_markdown_links:
+            # Podziel tekst na części używając linku jako separatora (tylko pierwsze wystąpienie)
+            result_of_split = current_text.split(f"[{link_details[0]}]({link_details[1]})", 1)
+            # Zachowaj resztę tekstu do dalszego sprawdzania tj. druga część [1] zawierająca niepodzielony jeszcze tekst
+            current_text = result_of_split[1]
+
+            # Jeśli przed linkiem był tekst, dodaj go jako zwykły węzeł
+            if result_of_split[0]:
+                result_list.append(TextNode(result_of_split[0], TextType.TEXT))
+
+            # Dodaj sam link jako węzeł typu LINK
+            result_list.append(TextNode(link_details[0], TextType.LINK, link_details[1]))
+
+        # Jeśli po wszystkich linkach został tekst, dodaj go na koniec
+        if current_text:
+            result_list.append(TextNode(current_text, TextType.TEXT))
+
+    # Zwróć nową listę węzłów
+    return result_list
