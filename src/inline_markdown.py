@@ -1,6 +1,6 @@
 import re
 
-from textnode import TextNode, TextType
+from src.textnode import TextNode, TextType
 from rich import print
 
 
