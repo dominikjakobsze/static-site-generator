@@ -1,36 +1,53 @@
-from textwrap import fill
-
-from src.textnode import TextNode, TextType
+import shutil
 from pathlib import Path
 from rich import print
-import shutil
+from typing import Dict, Any
 
 
-def main():
-    node = TextNode("This is a text node", TextType.BOLD, "https://www.boot.dev")
-    static_to_public()
+def _recreate_directory(target_dir: Path) -> None:
+    """
+    Deletes a directory and all its contents if it exists,
+    then recreates it as an empty directory.
+    """
+    print(f"Recreating directory: {target_dir}")
+    if target_dir.exists():
+        shutil.rmtree(target_dir)
+    target_dir.mkdir(parents=True, exist_ok=True)
 
 
-def _delete_files_in_dir(target: Path):
-    if target.exists():
-        shutil.rmtree(target, ignore_errors=True)
-        target.mkdir(parents=True, exist_ok=True)
+def _copy_recursive(source: Path, destination: Path) -> None:
+    """
+    Recursively copies contents from a source to a destination directory.
+    """
+    # shutil.copytree(source, destination, dirs_exist_ok=True)
+    for item in source.iterdir():
+        destination_item = destination / item.name
+        if item.is_file():
+            print(f"  - Copying file: {item} -> {destination_item}")
+            shutil.copy2(item, destination_item)
+        elif item.is_dir():
+            destination_item.mkdir(parents=True, exist_ok=True)
+            _copy_recursive(item, destination_item)
 
 
-def _copy_file_to_dir(src: Path, dst: Path):
-    # shutil.copytree(src, dst, dirs_exist_ok=True)
-    for file in src.iterdir():
-        if file.is_file():
-            shutil.copy2(file, dst)
-        if file.is_dir():
-            (dst / file.name).resolve().mkdir(parents=True, exist_ok=True)
-            _copy_file_to_dir(file, (dst / file.name).resolve())
+def sync_static_to_public() -> None:
+    """
+    Coordinates the process of syncing the 'static' directory to the 'public' directory.
+    """
+    root_dir = Path(__file__).parent.parent.resolve()
+    static_dir = root_dir / "static"
+    public_dir = root_dir / "public"
+
+    _recreate_directory(public_dir)
+    _copy_recursive(static_dir, public_dir)
 
 
-def static_to_public():
-    ROOT_DIR = Path(__file__).parent.parent.resolve()
-    _delete_files_in_dir((ROOT_DIR / "public").resolve())
-    _copy_file_to_dir((ROOT_DIR / "static").resolve(), (ROOT_DIR / "public").resolve())
+def main(config: Dict[str, Any] = None) -> None:
+    """
+    Main entry point for the script.
+    """
+    sync_static_to_public()
 
 
-main()
+if __name__ == "__main__":
+    main()
