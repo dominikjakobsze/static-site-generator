@@ -12,3 +12,6 @@ GEMINI.md
 public
 public/
 public/*
+
+.DS_Store
+.DS_Store/
