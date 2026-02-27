@@ -3,7 +3,7 @@ from pathlib import Path
 from rich import print
 from typing import Dict, Any
 
-from src.generate_page import generate_page
+from src.generate_page import generate_page, generate_pages_recursive
 
 
 def _recreate_directory(target_dir: Path) -> None:
@@ -11,7 +11,7 @@ def _recreate_directory(target_dir: Path) -> None:
     Deletes a directory and all its contents if it exists,
     then recreates it as an empty directory.
     """
-    print(f"Recreating directory: {target_dir}")
+    # print(f"Recreating directory: {target_dir}")
     if target_dir.exists():
         shutil.rmtree(target_dir)
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -25,7 +25,7 @@ def _copy_recursive(source: Path, destination: Path) -> None:
     for item in source.iterdir():
         destination_item = destination / item.name
         if item.is_file():
-            print(f"  - Copying file: {item} -> {destination_item}")
+            # print(f"  - Copying file: {item} -> {destination_item}")
             shutil.copy2(item, destination_item)
         elif item.is_dir():
             destination_item.mkdir(parents=True, exist_ok=True)
@@ -50,7 +50,7 @@ def main(config: Dict[str, Any] = None) -> None:
     """
     sync_static_to_public()
     root_dir = (Path(__file__).parent.parent).resolve()
-    generate_page(root_dir / "content" / "index.md", root_dir / "template.html", root_dir / "public" / "index.html")
+    generate_pages_recursive(root_dir / "content", root_dir / "template.html", root_dir / "public")
 
 
 if __name__ == "__main__":

@@ -25,3 +25,20 @@ def generate_page(from_path: Path, template_path: Path, dest_path: Path):
     dest_path.parent.mkdir(parents=True, exist_ok=True)
 
     dest_path.write_text(modified_template)
+
+
+def generate_pages_recursive(dir_path_content: Path, template_path: Path, dest_dir_path: Path):
+    for entry in dir_path_content.iterdir():
+        if entry.is_dir():
+            generate_pages_recursive(
+                entry,
+                template_path,
+                dest_dir_path / entry.name
+            )
+        elif entry.name.endswith(".md"):
+            output_file_path = dest_dir_path / f"{entry.stem}.html"
+            generate_page(
+                entry,
+                template_path,
+                output_file_path
+            )
