@@ -3,6 +3,8 @@ from pathlib import Path
 from rich import print
 from typing import Dict, Any
 
+from src.generate_page import generate_page
+
 
 def _recreate_directory(target_dir: Path) -> None:
     """
@@ -47,6 +49,8 @@ def main(config: Dict[str, Any] = None) -> None:
     Main entry point for the script.
     """
     sync_static_to_public()
+    root_dir = (Path(__file__).parent.parent).resolve()
+    generate_page(root_dir / "content" / "index.md", root_dir / "template.html", root_dir / "public" / "index.html")
 
 
 if __name__ == "__main__":
